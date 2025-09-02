@@ -2,15 +2,25 @@
 
 buildscript {
     
+    ext {
+        agp_version = '8.7.2'
+    }
     repositories {
         google()
-        jcenter()
+        maven {
+            url 'https://maven.google.com'
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+        maven { url 'https://jitpack.io' }
+
+        google()
+        maven {url "https://plugins.gradle.org/m2/"}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-
+        classpath "com.android.tools.build:gradle:$agp_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -18,11 +28,34 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
-        jcenter()
+
+        maven {
+            credentials {
+                username "$repoUser"
+                password "$repoPassword"
+            }
+            url "$publicRepoUrl"
+        }
+        maven { url 'https://jitpack.io' }
+        maven {
+            credentials {
+                username "$repoUser"
+                password "$repoPassword"
+            }
+            url "$releasesRepoUrl"
+        }
+        maven {
+            credentials {
+                username "$repoUser"
+                password "$repoPassword"
+            }
+            url "$snapshotsRepoUrl"
+        }
     }
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }

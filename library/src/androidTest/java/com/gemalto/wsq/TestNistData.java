@@ -2,8 +2,7 @@ package com.gemalto.wsq;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 /*
  * Here we check the encoder and decoder against NIST reference data downloaded from
@@ -27,7 +29,7 @@ public class TestNistData {
 
     @Before
     public void init() {
-        ctx = InstrumentationRegistry.getTargetContext();
+        ctx = ApplicationProvider.getApplicationContext();
         util = new Util(ctx);
     }
 

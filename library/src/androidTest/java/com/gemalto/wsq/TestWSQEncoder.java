@@ -2,8 +2,6 @@ package com.gemalto.wsq;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +12,9 @@ import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 @RunWith(AndroidJUnit4.class)
 public class TestWSQEncoder {
@@ -36,8 +37,8 @@ public class TestWSQEncoder {
     public void testEncodeSimple() throws Exception {
         String[] images = new String[] {"lena1.png", "lena2.png", "256x256.png", "1024x1024.png"};
 
-        for (int i = 0; i < images.length; i++) {
-            Bitmap expected = util.loadAssetBitmap(images[i]);
+        for (String image : images) {
+            Bitmap expected = util.loadAssetBitmap(image);
 
             //test encode to file
             File outFile = new File(ctx.getFilesDir(), "tmp.tmp");
@@ -46,7 +47,7 @@ public class TestWSQEncoder {
             assertNotNull(encoded);
             Bitmap decoded = WSQDecoder.decode(encoded).getBitmap();
             assertFalse(decoded.hasAlpha());
-            assertSimilar(String.format("encoded %s is too different from the original", images[i]), expected, decoded);
+            assertSimilar(String.format("encoded %s is too different from the original", image), expected, decoded);
             outFile.delete();
 
             //test encode to stream
@@ -56,14 +57,14 @@ public class TestWSQEncoder {
             assertNotNull(encoded);
             decoded = WSQDecoder.decode(encoded).getBitmap();
             assertFalse(decoded.hasAlpha());
-            assertSimilar(String.format("encoded %s is too different from the original", images[i]), expected, decoded);
+            assertSimilar(String.format("encoded %s is too different from the original", image), expected, decoded);
 
             //test encode to byte array
             encoded = new WSQEncoder(expected).encode();
             assertNotNull(encoded);
             decoded = WSQDecoder.decode(encoded).getBitmap();
             assertFalse(decoded.hasAlpha());
-            assertSimilar(String.format("encoded %s is too different from the original", images[i]), expected, decoded);
+            assertSimilar(String.format("encoded %s is too different from the original", image), expected, decoded);
         }
     }
 
@@ -75,13 +76,13 @@ public class TestWSQEncoder {
         int[] ppis = new int[] {-1, 500, 200, 0, 65536, Integer.MAX_VALUE};
 
         Bitmap bmp = util.loadAssetBitmap("lena1.png");
-        for (int i = 0; i < ppis.length; i++) {
+        for (int j : ppis) {
 
             //test encode to byte array
-            byte[] encoded = new WSQEncoder(bmp).setPpi(ppis[i]).encode();
+            byte[] encoded = new WSQEncoder(bmp).setPpi(j).encode();
             assertNotNull(encoded);
             WSQDecoder.WSQDecodedImage decoded = WSQDecoder.decode(encoded);
-            assertEquals(String.format("Wrong PPI! Expected %d, got %d", ppis[i], decoded.getPpi()), ppis[i], decoded.getPpi());
+            assertEquals(String.format("Wrong PPI! Expected %d, got %d", j, decoded.getPpi()), j, decoded.getPpi());
             assertSimilar("encoded image is too different from the original", bmp, decoded.getBitmap());
         }
 

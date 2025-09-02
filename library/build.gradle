@@ -1,14 +1,16 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
+def artifactId ='wsq-android'
+def groupId = 'com.gemalto.wsq'
+def artifactVersion = "1.2-SNAPSHOT"
 
 android {
-    compileSdkVersion 29
+    namespace 'com.gemalto.wsq'
+    compileSdk 35
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 29
-        versionName "1.2"
-        versionCode 2
+        minSdkVersion 21
+        versionName "2.0"
+        versionCode 3
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -23,16 +25,24 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path "CMakeLists.txt"
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.22.1"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    ndkVersion "29.0.13846066"
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }
 
 ext {
@@ -59,4 +69,41 @@ ext {
     allLicenses = ["BSD-2-Clause"]
 }
 
-apply from: 'bintray.gradle'
+project.afterEvaluate {
+    publishing {
+        publications {
+            android.libraryVariants.all { variant ->
+                variant.outputs.each { output ->
+                    "${variant.name.capitalize()}"(MavenPublication) {
+                        setGroupId groupId
+                        setArtifactId artifactId
+                        version artifactVersion
+                        artifact variant.outputs[0].packageLibrary
+
+                        pom.withXml {
+                            def dependenciesNode = asNode().appendNode('dependencies')
+                            configurations.implementation.allDependencies.each {
+                                if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
+                                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                                    dependencyNode.appendNode('groupId', it.group)
+                                    dependencyNode.appendNode('artifactId', it.name)
+                                    dependencyNode.appendNode('version', it.version)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                url = "$snapshotsRepoUrl"
+                credentials {
+                    username "$mavenUser"
+                    password "$mavenPassword"
+                }
+            }
+        }
+    }
+}

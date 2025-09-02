@@ -87,7 +87,7 @@ jintArray prepareReturnData(JNIEnv *env, image_data_t *outImage) {
     return ret;
 }
 
-JNIEXPORT jintArray JNICALL Java_com_gemalto_wsq_Native_decodeWSQFile(JNIEnv *env, jclass thiz, jstring fileName) {
+extern "C" jintArray Java_com_gemalto_wsq_Native_decodeWSQFile(JNIEnv *env, jclass thiz, jstring fileName) {
     int ilen;
     unsigned char *idata;
     char *ifile;
@@ -118,7 +118,7 @@ JNIEXPORT jintArray JNICALL Java_com_gemalto_wsq_Native_decodeWSQFile(JNIEnv *en
     return ret;
 }
 
-JNIEXPORT jintArray JNICALL Java_com_gemalto_wsq_Native_decodeWSQByteArray(JNIEnv *env, jclass thiz, jbyteArray data) {
+extern "C" jintArray Java_com_gemalto_wsq_Native_decodeWSQByteArray(JNIEnv *env, jclass thiz, jbyteArray data) {
     int ilen;
     unsigned char *idata;
     jbyte *bufferPtr;
@@ -146,7 +146,7 @@ JNIEXPORT jintArray JNICALL Java_com_gemalto_wsq_Native_decodeWSQByteArray(JNIEn
 
 static const int MAX_COMMENT_LEN = (2 << 16) - 3;
 
-JNIEXPORT jbyteArray JNICALL Java_com_gemalto_wsq_Native_encodeWSQByteArray(JNIEnv *env, jclass thiz, jintArray pixels, jint width, jint height, jfloat r_bitrate, jint ppi, jstring comment) {
+extern "C" jbyteArray Java_com_gemalto_wsq_Native_encodeWSQByteArray(JNIEnv *env, jclass thiz, jintArray pixels, jint width, jint height, jfloat r_bitrate, jint ppi, jstring comment) {
     int i;
     unsigned char *idata;    /* Input RGB data */
     unsigned char *odata;    /* Encoded WSQ data */
